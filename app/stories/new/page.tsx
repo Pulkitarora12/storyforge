@@ -41,9 +41,6 @@ export default function NewStoryPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Step 3 state
-  const [preContext, setPreContext] = useState("");
   
   // Generation states
   const [generating, setGenerating] = useState(false);
@@ -150,28 +147,10 @@ export default function NewStoryPage() {
     }
   };
 
-  // Run next step or trigger upload
-  const handleStep2Next = async () => {
+  // Submit final generation prompt directly from Step 2
+  const handleStep2Submit = async () => {
     if (mediaFiles.length === 0) {
       setError("Please select at least one file to upload.");
-      return;
-    }
-
-    if (mediaUrls.length > 0) {
-      setStep(3);
-      return;
-    }
-
-    const uploadedUrls = await uploadAllToCloudinary();
-    if (uploadedUrls && uploadedUrls.length > 0) {
-      setStep(3);
-    }
-  };
-
-  // Submit final generation prompt
-  const handleGenerate = async () => {
-    if (!title || !prompt || mediaUrls.length === 0) {
-      setError("Missing key parameters. Please check your inputs.");
       return;
     }
 
@@ -180,6 +159,20 @@ export default function NewStoryPage() {
     setLoadingMessageIndex(0);
 
     try {
+      let urls = mediaUrls;
+      if (urls.length === 0) {
+        const uploadedUrls = await uploadAllToCloudinary();
+        if (!uploadedUrls || uploadedUrls.length === 0) {
+          setGenerating(false);
+          return;
+        }
+        urls = uploadedUrls;
+      }
+
+      if (!title || !prompt || urls.length === 0) {
+        throw new Error("Missing key parameters. Please check your inputs.");
+      }
+
       const response = await fetch("/api/stories/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -187,9 +180,9 @@ export default function NewStoryPage() {
           title,
           prompt,
           ageGroup,
-          sourceMediaUrl: mediaUrls, // pass array of URLs
+          sourceMediaUrl: urls,
           sourceMediaType: mediaType,
-          preContext,
+          preContext: "",
         }),
       });
 
@@ -243,18 +236,17 @@ export default function NewStoryPage() {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-primary uppercase tracking-wider">
-              Step {step} of 3
+              Step {step} of 2
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               {step === 1 && "Storybook Parameters"}
               {step === 2 && "Upload Visual Inspiration"}
-              {step === 3 && "Pre-Context & Create"}
             </h1>
           </div>
           
           {/* Progress dots */}
           <div className="flex items-center gap-2">
-            {[1, 2, 3].map((s) => (
+            {[1, 2].map((s) => (
               <div
                 key={s}
                 className={`w-3 h-3 rounded-full transition-all duration-200 ${
@@ -474,62 +466,11 @@ export default function NewStoryPage() {
 
               <button
                 type="button"
-                onClick={handleStep2Next}
-                disabled={mediaFiles.length === 0 || uploading}
+                onClick={handleStep2Submit}
+                disabled={mediaFiles.length === 0 || uploading || generating}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-all text-sm shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {uploading ? "Uploading..." : mediaUrls.length > 0 ? "Next Step" : "Upload & Continue"}
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 3 */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold flex items-center gap-1.5">
-                Optional Pre-Context / Custom Elements
-                <span title="Add character names, specific colors, moral tags, etc.">
-                  <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
-                </span>
-              </label>
-              <textarea
-                rows={5}
-                value={preContext}
-                onChange={(e) => setPreContext(e.target.value)}
-                placeholder="Include custom elements e.g. 'The protagonist rabbit wears a small blue hat and is very silly. The story must include a wise owl named Professor Hoot. End the story with a moral about sharing.'"
-                className="block w-full px-4 py-3 rounded-xl border border-border bg-background/50 focus:bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-sm resize-none"
-              />
-            </div>
-
-            <div className="p-4 rounded-xl bg-secondary/30 border border-border space-y-2 text-xs text-muted-foreground leading-relaxed">
-              <p className="font-bold text-foreground">Creating a 10-Page Storybook:</p>
-              <ul className="list-disc pl-4 space-y-1">
-                <li>Your uploaded media's subject will become the protagonist.</li>
-                <li>The story will be formatted specifically for a "{ageGroup}" reader.</li>
-                <li>Each page will have styled text paragraphs and illustrations.</li>
-                <li>Generation typically takes 15-25 seconds using Gemini 2.5 Flash.</li>
-              </ul>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary hover:bg-secondary/80 border border-border transition-all text-sm font-semibold"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </button>
-
-              <button
-                type="button"
-                onClick={handleGenerate}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-extrabold hover:bg-primary/90 transition-all text-sm shadow-lg shadow-primary/10"
-              >
-                Generate Storybook
+                {uploading ? "Uploading..." : generating ? "Generating..." : "Generate Storybook"}
               </button>
             </div>
           </div>

@@ -17,7 +17,7 @@ const AGE_CONFIGS: Record<string, {
     description: "children (ages 3-12)",
     sentenceRule: "Use clean, direct, and engaging sentence structures suitable for children.",
     vocabRule: "Use accessible vocabulary with descriptive adjectives. Introduce colorful terms contextually.",
-    wordCountRule: "Every page MUST contain at least 60 words.",
+    wordCountRule: "Every page MUST contain at least 35 words.",
     toneRule: "Playful, imaginative, and encouraging.",
     themesRule: "Focus on friendship, discovery, adventure, fun problems, and magic."
   },
@@ -25,7 +25,7 @@ const AGE_CONFIGS: Record<string, {
     description: "teenagers (ages 13-19)",
     sentenceRule: "Use expressive, varied, and modern sentence structures.",
     vocabRule: "Use rich, descriptive vocabulary, contemporary terms, and idioms suitable for adolescents.",
-    wordCountRule: "Every page MUST contain at least 80 words.",
+    wordCountRule: "Every page MUST contain at least 35 words.",
     toneRule: "Immersive, expressive, dramatic, and emotionally resonant.",
     themesRule: "Focus on identity, personal growth, relationships, mystery, choice, and journey."
   },
@@ -33,7 +33,7 @@ const AGE_CONFIGS: Record<string, {
     description: "general audience and adults (ages 20+)",
     sentenceRule: "Use complex, sophisticated, and polished prose structures.",
     vocabRule: "Use advanced, nuanced, literary vocabulary and rich metaphors.",
-    wordCountRule: "Every page MUST contain at least 100 words.",
+    wordCountRule: "Every page MUST contain at least 35 words.",
     toneRule: "Stylized, deep, engaging, and mature.",
     themesRule: "Focus on philosophical questions, complex moral decisions, deep emotional journeys, and rich lore."
   }
@@ -176,7 +176,7 @@ Important Writing Instructions:
 2. You must output exactly 10 pages in the array.
 3. Each page must contain story content as basic, clean HTML (e.g. use paragraphs <p>story text</p>, with optional inline formatting like <strong> or <em>).
 4. Each page must also have a "sceneDescription" that details what is visually happening on that page. This scene description should be suitable for illustrating the page.
-5. CRITICAL: Every single page MUST contain at least 60 words of story content. Write full, detailed descriptive paragraphs to ensure the narrative is rich and meets the 60-word minimum per page. Do not make it too brief.
+5. CRITICAL: Every single page MUST contain at least 35 words of story content. Write full, detailed descriptive paragraphs to ensure the narrative is rich and meets the 35-word minimum per page. Do not make it too brief.
 
 You MUST respond strictly with a single JSON object matching this structure (no markdown formatting, no comments, no backticks outside the JSON structure):
 {
