@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StoryForge 📖✨
 
-## Getting Started
+StoryForge is a children's storybook generator application built using **Next.js 14 (App Router)** and **TypeScript**. With StoryForge, parents, educators, and creators can transform a single uploaded drawing or animation and a creative prompt into a structured, age-appropriate, and beautifully illustrated 10-page children's book.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Key Features
+
+*   **Gemini 2.5 Flash Integration**: Analyzes uploaded media directly using vision capabilities to formulate the story protagonist's visual cues, styling, and environment.
+*   **Age-Tiered Reading Prompts**: Custom-tailored reading levels matching vocabulary complexity, sentence structures, tone constraints, and themes for four specific tiers:
+    *   **Toddler (2-3)**: Simple 4-6 word structures, comforting patterns, discovery themes.
+    *   **Preschool (4-6)**: Curiously active verbs, direct interaction, emotional learning.
+    *   **Early Reader (7-9)**: Cooperative problem solving, sight words, resilience themes.
+    *   **Middle Grade (10-12)**: Immersive descriptive vocabulary, idioms, complex story arcs.
+*   **Structured 10-Page Arc**: Stories follow a strict narrative layout: Setting & character introduction on Page 1 (based on the upload), buildup (Pages 2-4), rising action (Pages 5-7), Climax (Page 8), Resolution (Page 9), and a satisfying loop ending back to Page 1 (Page 10).
+*   **Direct Cloudinary signed uploads**: Optimizes uploads by sending media directly from the client's browser using signed signatures generated on demand, bypassing server bottlenecks.
+*   **In-Place Tiptap V3 Editing**: Offers interactive inline rich-text editing per page, backed by automatic database synchronization.
+*   **Next-Themes Toggling**: Smooth, class-based dark/light mode toggle mapped using HSL custom properties.
+
+---
+
+## 🛠️ Technology Stack
+
+*   **Framework**: Next.js 14.2.35 (App Router, TypeScript)
+*   **Database**: Neon Postgres
+*   **ORM**: Prisma ORM (v5.15.0)
+*   **Authentication**: Custom secure database-backed session auth (using `bcryptjs` and secure `httpOnly` cookies)
+*   **AI Engine**: Google Gemini 2.5 Flash via `@google/generative-ai` (using `v1beta` endpoint configuration for strict JSON formatting)
+*   **Media Storage**: Cloudinary (Direct browser uploads)
+*   **Editor**: Tiptap v3 (StarterKit)
+*   **Styling**: Tailwind CSS + `@tailwindcss/typography`
+*   **Icons**: `lucide-react`
+*   **Fonts**: Google Inter via `next/font/google`
+
+---
+
+## 🗄️ Database Schema
+
+The database model is mapped directly via Prisma:
+
+```mermaid
+erDiagram
+    User ||--o{ Session : manages
+    User ||--o{ Story : creates
+    User ||--o{ Media : uploads
+    Story ||--|{ StoryPage : contains
+
+    User {
+        uuid id PK
+        string email UK
+        string passwordHash
+        string name
+        datetime createdAt
+    }
+
+    Session {
+        uuid id PK
+        string token UK
+        uuid userId FK
+        datetime expiresAt
+        datetime createdAt
+    }
+
+    Story {
+        uuid id PK
+        uuid userId FK
+        string title
+        text contextPrompt
+        string sourceMediaUrl
+        string sourceMediaType
+        string status
+        string ageGroup
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    StoryPage {
+        uuid id PK
+        uuid storyId FK
+        int pageNumber
+        text content
+        string imageUrl
+        text sceneDescription
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Media {
+        uuid id PK
+        uuid userId FK
+        string url
+        string type
+        string cloudinaryPublicId
+        datetime createdAt
+    }
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Local Setup & Installation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prerequisite Environment Settings
+Create a `.env` (or `.env.local`) file in the root workspace directory with the following variables:
 
-## Learn More
+```env
+# Neon Postgres Connection strings
+DATABASE_URL="your-neon-pooled-connection-string"
+DIRECT_URL="your-neon-direct-connection-string"
 
-To learn more about Next.js, take a look at the following resources:
+# Cloudinary signed uploads key set
+CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
+CLOUDINARY_API_KEY="your-cloudinary-api-key"
+CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Gemini Developer API credentials
+GEMINI_API_KEY="your-google-gemini-api-key"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# App Location
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
-## Deploy on Vercel
+### Installation Steps
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1.  **Clone and install dependencies**:
+    ```bash
+    npm install
+    ```
+2.  **Apply database migrations**:
+    ```bash
+    npx prisma migrate dev --name init
+    ```
+3.  **Run compilation build checks**:
+    ```bash
+    npm run build
+    ```
+4.  **Start development server**:
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) on your local browser.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛡️ Vercel Production Deployment
+
+To deploy this project to Vercel:
+
+1.  Import your GitHub repository into Vercel.
+2.  Add all keys defined in your `.env` as Vercel Environment Variables.
+3.  Ensure the build settings use default settings. The `postinstall` script in `package.json` (`prisma generate`) will automatically run and generate the types for `@prisma/client` during the deploy process.
