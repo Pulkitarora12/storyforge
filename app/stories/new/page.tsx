@@ -93,6 +93,7 @@ export default function NewStoryPage() {
       const signatureResponse = await fetch("/api/upload/signature", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
       });
 
       if (!signatureResponse.ok) {
