@@ -1,0 +1,34 @@
+# StoryForge Task Checklist
+
+- [x] Project Setup & Dependencies
+  - [x] Update `package.json` with scripts & dependencies
+  - [x] Run `npm install` to install all packages
+  - [x] Set up environment files `.env` and `.env.local`
+- [x] Database Schema & Client
+  - [x] Create `prisma/schema.prisma`
+  - [x] Generate Prisma Client and create database singleton utility (`lib/prisma.ts`)
+- [x] Authentication Setup
+  - [x] Implement middleware logic in `middleware.ts`
+  - [x] Implement server-side session helper (`lib/auth.ts`)
+  - [x] Implement Auth API routes (signup, login, logout)
+- [x] Cloudinary Integration
+  - [x] Implement `/api/upload/signature` API route
+- [x] Gemini API Generation
+  - [x] Implement `/api/stories/generate` with dynamic prompt builder, transaction logic, retries, and media download/base64 parsing
+- [x] Other Story API Routes
+  - [x] Implement PATCH `/api/stories/[id]/update` for inline page updates
+  - [x] Implement DELETE `/api/stories/[id]` for deleting a story
+- [x] Styles, Layout & Theme
+  - [x] Set up CSS custom properties in `app/globals.css`
+  - [x] Create dark/light theme providers (`app/providers.tsx`)
+  - [x] Update root layout (`app/layout.tsx`)
+- [x] Application Frontend Pages
+  - [x] Landing page (`app/page.tsx`)
+  - [x] Auth pages (`app/sign-in/page.tsx` & `app/sign-up/page.tsx`)
+  - [x] Dashboard (`app/dashboard/page.tsx`)
+  - [x] Story Creation Wizard (`app/stories/new/page.tsx`)
+  - [x] Story Reader & Editor (`app/stories/[id]/page.tsx`)
+- [x] Verification
+  - [x] Test the database migration
+  - [x] Run typescript checks and production builds
+  - [x] Create final walkthrough report
