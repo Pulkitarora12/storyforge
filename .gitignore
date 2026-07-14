@@ -30,6 +30,9 @@ yarn-error.log*
 .env.local
 .env*.local
 
+# agent folders
+.gemini/
+
 # vercel
 .vercel
 
